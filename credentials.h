@@ -1,7 +1,7 @@
 //MQTT
-#define MQTT_SERVER = "43.133.155.254";
-#define MQTT_USER = "D26p!EgHJbZxX-V4u5BNPy";
-#define MQTT_PASSWORD = "U2!teNWfckAYBh-x@D_wKC";
+#define MQTT_SERVER  "43.133.155.254";
+#define MQTT_USER  "D26p!EgHJbZxX-V4u5BNPy";
+#define MQTT_PASSWORD  "U2!teNWfckAYBh-x@D_wKC";
 
 //{clientId:"SCALE-1",
 //username:"yVq!h@K_-JHvDm8XRZudET",
@@ -17,13 +17,13 @@
 //password:"r2@zWJhSND-j!R7qpQbVcy"}
 
 //WIFI
-// #define   WIFI_SSID = "Emang ga sayang";
-// #define WIFI_PASSWORD = "tanyaeska";
-// #define WIFI_SSID = "Emang ga cinta";
-// #define WIFI_PASSWORD = "tanyadimas";
-#define WIFI_SSID = "yamisok-on-access";
-#define WIFI_PASSWORD = "Yamisok100#";
-// #define WIFI_SSID = "trj";
-// #define WIFI_PASSWORD = "DJNCKSUU";
-// #define WIFI_SSID = "Trojan-house";
-// #define WIFI_PASSWORD = "wowbanget123";
+// #define   WIFI_SSID  "Emang ga sayang";
+// #define WIFI_PASSWORD  "tanyaeska";
+// #define WIFI_SSID  "Emang ga cinta";
+// #define WIFI_PASSWORD  "tanyadimas";
+#define WIFI_SSID  "yamisok-on-access";
+#define WIFI_PASSWORD  "Yamisok100#";
+// #define WIFI_SSID  "trj";
+// #define WIFI_PASSWORD  "DJNCKSUU";
+// #define WIFI_SSID  "Trojan-house";
+// #define WIFI_PASSWORD  "wowbanget123";
