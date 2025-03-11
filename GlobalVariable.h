@@ -66,7 +66,10 @@ String fishCode = "FISH-1";
 
 //MQTT
 const char* mqtt_server = MQTT_SERVER;
-const char* topic1 = "scaling-weight";
+int port = 52023;
+//int port = 1883;
+//const char* topic1 = "scaling-weight";
+const char* topic1 = "flush-test";
 const char* topic2 = "scaling-weight-response";
 const char* topic3 = "check-connection";
 const char* topic4 = "check-connection-response";
@@ -75,10 +78,8 @@ const char* user = MQTT_USER;
 const char* pass = MQTT_PASSWORD;
 
 
-int port = 52023;
-//int port = 1883;
 WiFiClient clients;
-PubSubClient client(clients );
+PubSubClient client(clients);
 
 //actuator
 bool actuator = false;

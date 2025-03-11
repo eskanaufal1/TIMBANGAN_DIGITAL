@@ -33,12 +33,9 @@ void handleCardDetected() {
     nfc.PrintHex(uid, uidLength);
     //  randomSeed(analogRead(28));
     //  long randOut = random(1, 20);
-    
     delay(500);
     BraceletCode = hexString;
     liveFeedStart = true;
-    //  ser(hexString, machine_id, fishCode, Output, timeClient.getFormattedDate());
-    //  ser(hexString, machine_id, "123456789", "send", Output.toFloat());
     Serial.println(String("UID = ") + uid[0] + uid[1] + uid[2] + uid[3]);
     timeLastCardRead = millis();
   }

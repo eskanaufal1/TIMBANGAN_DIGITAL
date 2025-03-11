@@ -9,11 +9,12 @@ void timerInterval_setup() {
 
 void timerInterval_loop() {
   if (liveFeedStart == true) {
-    timer_live.run(100);
+    timer_live.run(150);
     if (weightSamples.isFull() == true) {
       float fixOutput = weightSamples.getMedian();
       ser(BraceletCode, machine_id, fishCode, Output, timeClient.getFormattedDate());
       liveFeedStart = false;
+      weightSamples.clear();
     }
   }
 }
