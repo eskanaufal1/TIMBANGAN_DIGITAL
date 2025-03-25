@@ -16,6 +16,16 @@ void serial_read_loop() {
     int lIndex = raw.lastIndexOf('\r');
     String OutputF = raw.substring(sIndex, lIndex);
     Output = OutputF.toFloat();
+    OutputInt = Output * 1000;
+    if (OutputInt <= 0) {
+      OutputInt = 0;
+    }
+    if (!liveFeedStart && OutputInt >= 100) {
+      displaySS(OutputInt, 15);
+    }
+    if (!liveFeedStart && OutputInt <= 100) {
+      display.clear();
+    }
 
     //    Serial.println(String(" Output = ") + OutputF + " Float = " + OutputF.toFloat());
     //    delay(100);

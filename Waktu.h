@@ -1,5 +1,6 @@
 void time_setup() {
   timeClient.begin();
+  timeClient.setTimeOffset(25200);
 }
 
 void time_loop() {

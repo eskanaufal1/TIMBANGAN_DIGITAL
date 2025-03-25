@@ -36,6 +36,7 @@ void handleCardDetected() {
     delay(500);
     BraceletCode = hexString;
     liveFeedStart = true;
+    local_client.unsubscribe(topic);
     Serial.println(String("UID = ") + uid[0] + uid[1] + uid[2] + uid[3]);
     timeLastCardRead = millis();
   }

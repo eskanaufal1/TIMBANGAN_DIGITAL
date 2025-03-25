@@ -1,23 +1,26 @@
 
 void reconnect() {
   // Loop until we're reconnected
-  while (!client.connected()) {
+  while (!local_client.connected()) {
     reconnect_wifi();
-    Serial.print("Attempting MQTT connection...");
+    Serial.print("Attempting MQTT connection to ");
+    Serial.print(mqtt_local_server);
+    Serial.print(" . . . .");
     // Attempt to connect
-    if (client.connect(clientID, user, pass)) {
+    if (local_client.connect(clientID)) { //client.connect(clientID, user, pass) &&
       Serial.println("connected");
       // Once connected, publish an announcement...
       //client.publish(topic1, "hello world");
       // ... and resubscribe
-      client.subscribe(topic1);
-      client.subscribe(topic2);
-      client.subscribe(topic3);
-      client.subscribe(topic4);
-      Serial.println("Subscribed 4 topic");
+      local_client.subscribe(topic);
+      //      client.subscribe(topic2);
+      //      client.subscribe(topic3);
+      //      client.subscribe(topic4);
+      Serial.print("Subscribed Server = ");
+      Serial.println(topic);
     } else {
       Serial.print("failed, rc = ");
-      Serial.print(client.state());
+      Serial.print(local_client.state());
       Serial.println(" try again in 5 seconds");
       LED_noMQTT();
       // Wait 5 seconds before retrying
@@ -40,86 +43,91 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print(F("deserializeJson() failed: "));
     Serial.println(err.c_str());
   } else {
-    //    Serial.println(String("Topic = ") + topic);
-    String topicString = topic;
-    //    Serial.println(topicString == topic3);
-    if ( topicString == topic3) {
-      String machine_state = doc["status"];
-      Serial.println("Checking status machine");
-      if (machine_state) {
-        JsonDocument doc;
-        doc["status"] = true;
-        reconnect();
-        char buff[128];
-        size_t n = serializeJson(doc, buff);
-        Serial.println(buff);
-        // Send JSON to MQTT topic
-        if (client.publish(topic4, buff, n)) {
-          Serial.println("JSON response sent to MQTT");
-        } else {
-          Serial.println("Failed to send JSON status to MQTT");
-        }
-      }
+    if (doc["action"] == "check-connection") {
+      check_state = true;
+
     }
-    if (topicString == topic2) {
+    if (doc["action"] == "scaling-weight-response") {
       bool machine_state = doc["status"];
-      if (machine_state == true) {
+      if (machine_state == true ) {
         motor_run_loop();
       }
     }
   }
 }
 
-void ser(String braceletcode, String machine_id, String fishcode, float weight, String id) {
+void checking_connection() {
+  if (check_state == true) {
+    //      reconnect();
+    Serial.println("Checking status machine");
+    JsonDocument doc;
+    doc["action"] = "check-connection-response";
+    doc["status"] = "true";
+    doc["date_time"] = timeClient.getFormattedDate();
+    char buff[128];
+
+    size_t n = serializeJson(doc, buff);
+    Serial.println(buff);
+    // Send JSON to MQTT topic
+    if (local_client.publish(topic, buff, n)) {
+      Serial.println("JSON response sent to MQTT");
+      check_state = false;
+    } else {
+      Serial.println("Failed to send JSON status to MQTT");
+    }
+  }
+}
+
+void send_fix_weight(String braceletcode, String machine_id, float weight, String id) {
   JsonDocument doc;
 
   /*  {
+      action:"scaling-weight",
       braceletcode:"B4",
       scalecode:"SCALE-1",
-      fishcode:"FISH-1",
       weightnumber:"200",
       uidreq:uuid.v1()
     }*/
+  doc["action"] = "scaling-weight";
   doc["braceletcode"] = braceletcode;
   doc["scalecode"] = machine_id;
-  doc["fishcode"] = fishcode;
-  doc["weightmedian"] = weight;
+  doc["weightnumber"] = weight;
   doc["uidreq"] = id;
   reconnect();
-  char buffer[512];
+  char buffer[256];
   size_t n = serializeJson(doc, buffer);
   Serial.println(buffer);
 
   // Send JSON to MQTT topic
-  if (client.publish(topic1, buffer, n)) {
+  if (local_client.publish(topic, buffer, n)) {
     Serial.println("JSON sent to MQTT");
   } else {
     Serial.println("Failed to send JSON to MQTT");
   }
 }
 
-void live_feed(String braceletcode, String machine_id, String fishcode, float weight, String id) {
+void live_feed(String braceletcode, String machine_id, float weight, String id) {
   JsonDocument doc;
 
   /*  {
+      action:"scaling-weight",
       braceletcode:"B4",
       scalecode:"SCALE-1",
-      fishcode:"FISH-1",
       weightnumber:"200",
       uidreq:uuid.v1()
     }*/
+  doc["action"] = "scaling-weight";
   doc["braceletcode"] = braceletcode;
   doc["scalecode"] = machine_id;
-  doc["fishcode"] = fishcode;
-  doc["weightnumber"] = weight;
+  doc["weight"] = weight;
   doc["uidreq"] = id;
   reconnect();
-  char buffer[512];
+  char buffer[128];
   size_t n = serializeJson(doc, buffer);
   Serial.println(buffer);
 
   // Send JSON to MQTT topic
-  if (client.publish(topic1, buffer, n)) {
+  if (local_client.publish(topic, buffer, n)) {
     Serial.println("JSON sent to MQTT");
   } else {
     Serial.println("Failed to send JSON to MQTT");
@@ -127,16 +135,19 @@ void live_feed(String braceletcode, String machine_id, String fishcode, float we
 }
 
 void mqtt_setup() {
-  client.setServer(mqtt_server, port);
-  client.setCallback(callback);
+  //  client.setServer(mqtt_public_server, port);
+  //  client.setCallback(callback);
+  local_client.setServer(mqtt_local_server, local_port);
+  local_client.setCallback(callback);
   reconnect();
 }
 
 void mqtt_loop() {
-  if (!client.connected()) {
+  if (!local_client.connected()) { //!client.connected() ||
     reconnect();
   }
-  client.loop();
+  //  client.loop();
+  local_client.loop();
   //  client.subscribe(topic1);
   //  client.subscribe(topic2);
   //  client.subscribe(topic3);

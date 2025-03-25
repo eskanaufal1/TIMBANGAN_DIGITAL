@@ -2,7 +2,9 @@ void LED_setup() {
   pixels.begin();
   pixels.clear();
 }
+
 bool led_state = false;
+
 void LED_noWifi() {
   for (int i = 0; i < NUMPIXELS; i++) { // For each pixel...
 

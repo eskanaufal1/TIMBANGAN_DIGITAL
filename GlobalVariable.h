@@ -10,6 +10,12 @@
 #include <RunningMedian.h>
 #include "Simpletimer.h"
 #include "credentials.h"
+#include <TM1637Display.h>
+
+// Seven Segments connection pins (Digital Pins)
+#define CLK 11
+#define DIO 12
+TM1637Display display(CLK, DIO);
 
 // Interval Callback
 bool liveFeedStart = false;
@@ -43,45 +49,74 @@ int irqPrev;
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 
 // Neopixel LED
-#define PIN       26
+#define PIN       27
 #define NUMPIXELS 75 // Popular NeoPixel ring size
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
+//Pin Webserver
+const int WEBSERVER_PIN = 26;
+bool WEBSERVER_STATE = false;
+
 // Weight sensor output variable
 float Output;
+int OutputInt;
 
 // Wifi
-const char* ssid = WIFI_SSID;
-const char* password = WIFI_PASSWORD;
+char* ssid;
+char* password;
 
-
-IPAddress ip(192, 168, 2, 105);
-IPAddress dns(8, 8, 8, 8);
-IPAddress gateway(192, 168, 2, 1);
-IPAddress subnet(255, 255, 255, 0);
-
-//machine_id
-String machine_id = "SCALE-3";
-String fishCode = "FISH-1";
 
 //MQTT
-const char* mqtt_server = MQTT_SERVER;
-int port = 52023;
+char* mqtt_public_server;
+char* mqtt_local_server;
+//int port = 52023;
+int port = 52043;
+int local_port = 1883;
 //int port = 1883;
 //const char* topic1 = "scaling-weight";
-const char* topic1 = "flush-test";
-const char* topic2 = "scaling-weight-response";
-const char* topic3 = "check-connection";
-const char* topic4 = "check-connection-response";
-const char* clientID = "SCALE-3";
-const char* user = MQTT_USER;
-const char* pass = MQTT_PASSWORD;
+//const char* topic2 = "scaling-weight-response";
+//const char* topic3 = "check-connection";
+//const char* topic4 = "check-connection-response";
+char* clientID;
+char* topic = clientID;
+//const char* topic1 = "flush-test";
+char* user;
+char* pass;
 
+//machine_id
+String machine_id = String(topic);
 
-WiFiClient clients;
-PubSubClient client(clients);
+//WiFiClient clients;
+WiFiClient clients_local;
+
+//PubSubClient client(clients);
+PubSubClient local_client(clients_local);
 
 //actuator
 bool actuator = false;
 #define RMotor (20)
 #define LMotor (21)
+
+//Webserver
+#include <WebServer.h>
+// Define AP credentials
+const char* apSSID = "PicoW_Config";
+const char* apPassword = "config1234";
+
+//Check Status
+bool check_state = false;
+
+// Wi-Fi and MQTT Settings
+char wifi_ssid[32];
+char wifi_password[64];
+char mqtt_server[64];
+int mqtt_port = 1883;
+char mqtt_username[32];
+char mqtt_password[32];
+char mqtt_topic[64];
+
+// Initialize the web server on port 80
+WebServer server(80);
+
+#include <EEPROM.h>
+#define EEPROM_SIZE 512 // Adjust size as necessary
