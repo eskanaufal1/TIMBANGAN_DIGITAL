@@ -17,10 +17,10 @@ void motor_run(bool dir, int pwm) {
 void motor_run_loop() {
   Serial.println("Motor Naik . . . . . ");
   motor_run(false, 255);
-  delay(35000);
+  delay(5000);
   Serial.println("Motor Turun . . . . . ");
   motor_run(true, 255);
-  delay(35000);
+  delay(5000);
   motor_run(true, 0);
   Serial.println("Motor Selesai . . . . . ");
   digitalWrite(LED_BUILTIN, LOW);

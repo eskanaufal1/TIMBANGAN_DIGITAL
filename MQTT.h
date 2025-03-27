@@ -7,7 +7,7 @@ void reconnect() {
     Serial.print(mqtt_local_server);
     Serial.print(" . . . .");
     // Attempt to connect
-    if (local_client.connect(clientID)) { //client.connect(clientID, user, pass) &&
+    if (local_client.connect(clientID, user, pass)) { //client.connect(clientID, user, pass) &&
       Serial.println("connected");
       // Once connected, publish an announcement...
       //client.publish(topic1, "hello world");
@@ -45,7 +45,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
   } else {
     if (doc["action"] == "check-connection") {
       check_state = true;
-
     }
     if (doc["action"] == "scaling-weight-response") {
       bool machine_state = doc["status"];
@@ -76,6 +75,27 @@ void checking_connection() {
       Serial.println("Failed to send JSON status to MQTT");
     }
   }
+}
+
+void machine_checking(String braceletCode) {
+  Serial.println("Checking status machine");
+  JsonDocument doc;
+  doc["action"] = "machine-check";
+  doc["braceletcode"] = braceletCode;
+  doc["scalecode"] = topic;
+  doc["date_time"] = timeClient.getFormattedDate();
+  char buff[128];
+
+  size_t n = serializeJson(doc, buff);
+  Serial.println(buff);
+  // Send JSON to MQTT topic
+  if (local_client.publish(topic, buff, n)) {
+    Serial.println("JSON response sent to MQTT");
+    check_state = false;
+  } else {
+    Serial.println("Failed to send JSON status to MQTT");
+  }
+
 }
 
 void send_fix_weight(String braceletcode, String machine_id, float weight, String id) {

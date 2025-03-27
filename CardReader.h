@@ -1,4 +1,20 @@
 
+void braceletCheck(String targetBracelet) {
+  for (int i = 0; i < numberOfBracelets; i++) {
+    if (braceletIDs[i] == targetBracelet) {  // Compare strings using strcmp
+      match = true;
+      break;
+    }
+    else {
+      match = false;
+    }
+  }
+  if (match) {
+    Serial.println("Admin bracelet, sending machine checking. . . ");
+    machine_checking(targetBracelet);
+  }
+}
+
 void handleCardDetected() {
   uint8_t success = false;
   uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
@@ -15,7 +31,6 @@ void handleCardDetected() {
     Serial.print("  UID Length: "); Serial.print(uidLength, DEC); Serial.println(" bytes");
     Serial.print("  UID Value: ");
     nfc.PrintHex(uid, uidLength);
-
     // Display some basic information about the card
 
     Serial.println("Found an ISO14443A card");
@@ -23,21 +38,23 @@ void handleCardDetected() {
     Serial.print(uidLength, DEC);
     Serial.println(" bytes");
     Serial.print("  UID Value: ");
-    //    Serial.print(uid[0]);
-    // Convert UID to Hexadecimal string
     char hexString[3 * uidLength + 1]; // Each byte will be 2 hex digits, plus 1 for null terminator
 
     for (int i = 0; i < uidLength; i++) {
       sprintf(hexString + (i * 2), "%02X", uid[i]);  // Convert each byte to 2 hex characters
     }
     nfc.PrintHex(uid, uidLength);
-    //  randomSeed(analogRead(28));
-    //  long randOut = random(1, 20);
     delay(500);
     BraceletCode = hexString;
-    liveFeedStart = true;
-    local_client.unsubscribe(topic);
-    Serial.println(String("UID = ") + uid[0] + uid[1] + uid[2] + uid[3]);
+    braceletCheck(BraceletCode);
+    if (!match) {
+      liveFeedStart = true;
+      local_client.unsubscribe(topic);
+      Serial.println(String("UID = ") + uid[0] + uid[1] + uid[2] + uid[3]);
+    }
+    else {
+      match = false;
+    }
     timeLastCardRead = millis();
   }
 

@@ -9,7 +9,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <RunningMedian.h>
 #include "Simpletimer.h"
-#include "credentials.h"
+//#include "credentials.h"
 #include <TM1637Display.h>
 
 // Seven Segments connection pins (Digital Pins)
@@ -23,6 +23,12 @@ Simpletimer timer_live{};
 
 //Bracelet var
 String BraceletCode;
+String braceletIDs[] = {
+  "9E4866BB", "DED8B62B", "4EA8B32B", "CE6E79BB", "FAE70766", 
+  "8E54B72B", "BE16B92B", "DE6DAF2B", "9EEFB72B", "EE9DB12B"
+};
+int numberOfBracelets = sizeof(braceletIDs) / sizeof(braceletIDs[0]);
+bool match = false;
 
 // Find Median
 RunningMedian weightSamples = RunningMedian(50);  // jumlah median

@@ -22,7 +22,6 @@ void LED_noWifi() {
   else {
     led_state != led_state;
   }
-
 }
 
 void LED_NFC() {
