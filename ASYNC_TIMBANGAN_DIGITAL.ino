@@ -2,7 +2,7 @@
 #include "GlobalVariable.h"   // Untuk variabel global
 #include "LED.h"              // Untuk LED
 #include "SevenSegment.h"     // Untuk LED
-#include "EEPROM_Func.h"    // Untuk EEPROM
+#include "EEPROM_Func.h"      // Untuk EEPROM
 #include "WebserverPico.h"    // Untuk Webserver
 #include "Motor.h"            // untuk Motor
 #include "WiFi.h"             // Untuk koneksi WiFi

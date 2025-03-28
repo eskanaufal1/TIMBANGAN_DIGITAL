@@ -48,8 +48,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     if (doc["action"] == "scaling-weight-response") {
       bool machine_state = doc["status"];
-      if (machine_state == true ) {
+      if (machine_state == true && actuator == false) {
+        actuator = true;
         motor_run_loop();
+        actuator = false;
       }
     }
   }

@@ -23,10 +23,10 @@ void timerInterval_loop() {
     if (weightSamples.isFull() == true) {
       int fixOutput = weightSamples.getMedian();
       Serial.println("Sending Median . . . ");
+      displayMedian(fixOutput, 15);
       send_fix_weight(BraceletCode, machine_id, fixOutput, timeClient.getFormattedDate());
       delay(200);
       send_fix_weight(BraceletCode, machine_id, fixOutput, timeClient.getFormattedDate());
-      displayMedian(fixOutput, 15);
       liveFeedStart = false;
       weightSamples.clear();
       Serial.println("Sending Median Done ");
