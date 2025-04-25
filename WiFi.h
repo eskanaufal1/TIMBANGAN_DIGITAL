@@ -2,6 +2,7 @@ void reconnect_wifi() {
   int cw = 0;
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
+    machineState = "NOWIFI";
     LED_noWifi();
     delay(1000);
     if (cw >= 10) {

@@ -10,8 +10,8 @@ void serial_read_loop() {
       startIndex++;
     }
     String raw = input.substring(startIndex);
-    //    Serial.print("Data =");
-    //    Serial.print(raw);
+    // Serial.print("Data =");
+    // Serial.print(raw);
     int sIndex = raw.lastIndexOf('\r') - 5;
     int lIndex = raw.lastIndexOf('\r');
     String OutputF = raw.substring(sIndex, lIndex);
@@ -20,10 +20,11 @@ void serial_read_loop() {
     if (OutputInt <= 0) {
       OutputInt = 0;
     }
-    if (!liveFeedStart && OutputInt >= 100) {
-      displaySS(OutputInt, 15);
-    }
+    //    if (!liveFeedStart && OutputInt >= 100) {
+    //      displaySS(OutputInt);
+    //    }
     if (!liveFeedStart && OutputInt <= 100) {
+      //      lc.clearDisplay(0);
       display.clear();
     }
 

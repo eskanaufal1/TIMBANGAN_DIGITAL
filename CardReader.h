@@ -3,29 +3,34 @@ void braceletCheck(String targetBracelet) {
   for (int i = 0; i < numberOfBracelets; i++) {
     if (braceletIDs[i] == targetBracelet) {  // Compare strings using strcmp
       match = true;
+      Serial.println("Admin bracelet, sending machine checking. . . ");
+      machine_checking(targetBracelet);
+      match = false;
+      machineState = "AVL";
+      liveFeedStart = false;
       break;
     }
     else {
       match = false;
     }
   }
-  if (match) {
-    Serial.println("Admin bracelet, sending machine checking. . . ");
-    machine_checking(targetBracelet);
+
+  if (match == false) {
+    initMachine = millis();
+    machineState = "VALIDATING";
+    Serial.println("VALIDATING");
+    validate_bracelet(targetBracelet);
   }
 }
 
 void handleCardDetected() {
-  uint8_t success = false;
-  uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
-  uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
-
   // read the NFC tag's info
   success = nfc.readDetectedPassiveTargetID(uid, &uidLength);
   Serial.println(success ? "Read successful" : "Read failed (not a card?)");
 
   if (success && liveFeedStart == false) {
-    LED_NFC();
+    //    liveFeedStart = true;
+    //    LED_NFC();
     // Display some basic information about the card
     Serial.println("Found an ISO14443A card");
     Serial.print("  UID Length: "); Serial.print(uidLength, DEC); Serial.println(" bytes");
@@ -39,22 +44,14 @@ void handleCardDetected() {
     Serial.println(" bytes");
     Serial.print("  UID Value: ");
     char hexString[3 * uidLength + 1]; // Each byte will be 2 hex digits, plus 1 for null terminator
-
     for (int i = 0; i < uidLength; i++) {
       sprintf(hexString + (i * 2), "%02X", uid[i]);  // Convert each byte to 2 hex characters
     }
     nfc.PrintHex(uid, uidLength);
+
     delay(500);
     BraceletCode = hexString;
     braceletCheck(BraceletCode);
-    if (!match) {
-      liveFeedStart = true;
-      local_client.unsubscribe(topic);
-      Serial.println(String("UID = ") + uid[0] + uid[1] + uid[2] + uid[3]);
-    }
-    else {
-      match = false;
-    }
     timeLastCardRead = millis();
   }
 
@@ -89,7 +86,6 @@ void PN532_setup() {
   Serial.print("Found chip PN5"); Serial.println((versiondata >> 24) & 0xFF, HEX);
   Serial.print("Firmware ver. "); Serial.print((versiondata >> 16) & 0xFF, DEC);
   Serial.print('.'); Serial.println((versiondata >> 8) & 0xFF, DEC);
-
   startListeningToNFC();
 }
 
@@ -113,5 +109,4 @@ void PN532_loop() {
   }
   //  Serial.println(".");
   //  delay(1000);
-
 }

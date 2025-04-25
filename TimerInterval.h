@@ -1,15 +1,9 @@
 void callback_live_feed() {
-
-  live_feed(BraceletCode, machine_id, OutputInt, timeClient.getFormattedDate());
-  weightSamples.add(OutputInt);
-  displaySS(OutputInt, 15);
-
-  //  randomSeed(analogRead(0));
-  //  int randomNumb = random(200);
-  //  live_feed(BraceletCode, machine_id, randomNumb, timeClient.getFormattedDate());
-  //  weightSamples.add(randomNumb);
-  //  displaySS(randomNumb, 15);
-
+  if (OutputInt > 100) {
+    weightSamples.add(OutputInt);
+    live_feed(BraceletCode, machine_id, OutputInt, "0");
+    Serial.println("SPAMMING - - - - - - - - - - - - - - - - -");
+  }
 }
 
 void timerInterval_setup() {
@@ -18,20 +12,22 @@ void timerInterval_setup() {
 
 void timerInterval_loop() {
   if (liveFeedStart == true) {
+    machineState = "SPAMMING";
     timer_live.run(100);
-    //    callback_live_feed();
-    if (weightSamples.isFull() == true) {
+    //callback_live_feed();
+    if (weightSamples.isFull() == true || counterInterval >= 20) {
+      reconnect();
       int fixOutput = weightSamples.getMedian();
       Serial.println("Sending Median . . . ");
-      displayMedian(fixOutput, 15);
-      send_fix_weight(BraceletCode, machine_id, fixOutput, timeClient.getFormattedDate());
-      delay(200);
-      send_fix_weight(BraceletCode, machine_id, fixOutput, timeClient.getFormattedDate());
+      //      displayMedian(fixOutput);
+      //      local_client.subscribe(topic, 0);
+      send_fix_weight(BraceletCode, machine_id, fixOutput, "0");
       liveFeedStart = false;
       weightSamples.clear();
       Serial.println("Sending Median Done ");
       //      client.subscribe(topic);
-      local_client.subscribe(topic);
+      machineState = "AVL";
+      Name = "";
     }
   }
 }

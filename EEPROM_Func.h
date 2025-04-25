@@ -27,8 +27,6 @@ void writeEEPROM() {
 
 void EEPROM_SETUP() {
   EEPROM.begin(EEPROM_SIZE);
-
-
 }
 
 void dataForEEPROM() {

@@ -115,27 +115,27 @@ void Webserver_setup() {
     Serial.print("Wi-Fi SSID: ");
     Serial.print(wifi_ssid);
     Serial.println(";");
-    
+
     Serial.print("Wi-Fi Password: ");
     Serial.print(wifi_password);
     Serial.println(";");
-    
+
     Serial.print("MQTT Server: ");
     Serial.print(mqtt_server);
     Serial.println(";");
-    
+
     Serial.print("MQTT Port: ");
     Serial.print(mqtt_port);
     Serial.println(";");
-    
+
     Serial.print("MQTT Username: ");
     Serial.print(mqtt_username);
     Serial.println(";");
-    
+
     Serial.print("MQTT Password: ");
     Serial.print(mqtt_password);
     Serial.println(";");
-    
+
     Serial.print("MQTT Topic: ");
     Serial.print(mqtt_topic);
     Serial.println(";");
@@ -144,9 +144,8 @@ void Webserver_setup() {
 
 void display_seven() {
   IPAddress localIp = WiFi.localIP();
-  display.setBrightness(15);
   for (int i = 0; i < 4; i++) {
-    display.showNumberDec(localIp[i], false);
+    displaySS(localIp[i]);
     delay(1000);
   }
 }

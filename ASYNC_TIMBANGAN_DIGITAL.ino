@@ -26,13 +26,20 @@ void setup() {
     wifi_setup();
     mqtt_setup();
     PN532_setup();
-    time_setup();
+    //    time_setup();
     serial_read_setup();
     PN532_setup();
     motor_setup();
     timerInterval_setup();
   }
   SevenSetup();
+}
+
+void machine_normalizer(){
+  if ((millis()-initMachine)>30000){
+    machineState = "AVL";
+    initMachine = 0;
+  }
 }
 
 void loop() {
@@ -42,15 +49,19 @@ void loop() {
   if (!WEBSERVER_STATE) {
     LED_loop();
     PN532_loop();
-    time_loop();
+    // time_loop();
     wifi_loop();
     mqtt_loop();
     checking_connection();
+    machine_normalizer();
   }
 }
 
 void loop1() {
   if (!WEBSERVER_STATE) {
+    if (machineState == "SPAMMING" || machineState == "VALIDATING"){
+      mqtt_loop();
+    }
     serial_read_loop();
     timerInterval_loop();
   }

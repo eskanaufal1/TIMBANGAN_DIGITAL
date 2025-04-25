@@ -10,28 +10,47 @@
 #include <RunningMedian.h>
 #include "Simpletimer.h"
 //#include "credentials.h"
+//#include "LedControl.h"
 #include <TM1637Display.h>
 
+//Machine Status
+String machineState = "AVL";
+
 // Seven Segments connection pins (Digital Pins)
-#define CLK 11
-#define DIO 12
+//LedControl lc = LedControl(11, 13, 10, 1);
+#define CLK 2
+#define DIO 3
 TM1637Display display(CLK, DIO);
 
 // Interval Callback
 bool liveFeedStart = false;
 Simpletimer timer_live{};
+int counterInterval = 0;
 
 //Bracelet var
 String BraceletCode;
 String braceletIDs[] = {
-  "9E4866BB", "DED8B62B", "4EA8B32B", "CE6E79BB", "FAE70766", 
+  "9E4866BB", "DED8B62B", "4EA8B32B", "CE6E79BB", "FAE70766",
   "8E54B72B", "BE16B92B", "DE6DAF2B", "9EEFB72B", "EE9DB12B"
 };
 int numberOfBracelets = sizeof(braceletIDs) / sizeof(braceletIDs[0]);
 bool match = false;
+uint8_t success = false;
+uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
+uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
+
+//Bracelet validator
+bool validate = false;
+String UID;
+String Name;
+unsigned long int initVal = millis();
+unsigned long int lastVal = millis();
+
+//Counter Machine
+unsigned long int initMachine = millis();
 
 // Find Median
-RunningMedian weightSamples = RunningMedian(50);  // jumlah median
+RunningMedian weightSamples = RunningMedian(20); // jumlah median
 
 // time
 WiFiUDP ntpUDP;
@@ -45,7 +64,7 @@ NTPClient timeClient(ntpUDP, ntpServer, 3600, 60000);
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)  // Not connected by default on the NFC Shield
 
-const int DELAY_BETWEEN_CARDS = 1500;
+const int DELAY_BETWEEN_CARDS = 7500;
 long timeLastCardRead = 0;
 boolean readerDisabled = false;
 int irqCurr;
@@ -78,14 +97,8 @@ char* mqtt_local_server;
 //int port = 52023;
 int port = 52043;
 int local_port = 1883;
-//int port = 1883;
-//const char* topic1 = "scaling-weight";
-//const char* topic2 = "scaling-weight-response";
-//const char* topic3 = "check-connection";
-//const char* topic4 = "check-connection-response";
 char* clientID;
 char* topic = clientID;
-//const char* topic1 = "flush-test";
 char* user;
 char* pass;
 
