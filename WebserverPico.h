@@ -1,40 +1,17 @@
-//// Function to read settings from EEPROM
-//void readEEPROM() {
-//  EEPROM.begin(EEPROM_SIZE);
-//  for (int i = 0; i < 32; i++) wifi_ssid[i] = EEPROM.read(i);
-//  for (int i = 0; i < 64; i++) wifi_password[i] = EEPROM.read(32 + i);
-//  for (int i = 0; i < 64; i++) mqtt_server[i] = EEPROM.read(96 + i);
-//  mqtt_port = EEPROM.read(160) << 8 | EEPROM.read(161); // 2 bytes for port
-//  for (int i = 0; i < 32; i++) mqtt_username[i] = EEPROM.read(162 + i);
-//  for (int i = 0; i < 32; i++) mqtt_password[i] = EEPROM.read(194 + i);
-//  for (int i = 0; i < 64; i++) mqtt_topic[i] = EEPROM.read(226 + i);
-//}
-//
-//// Function to save settings to EEPROM
-//void writeEEPROM() {
-//  EEPROM.begin(EEPROM_SIZE);
-//  for (int i = 0; i < 32; i++) EEPROM.write(i, wifi_ssid[i]);
-//  for (int i = 0; i < 64; i++) EEPROM.write(32 + i, wifi_password[i]);
-//  for (int i = 0; i < 64; i++) EEPROM.write(96 + i, mqtt_server[i]);
-//  EEPROM.write(160, mqtt_port >> 8); // 1st byte of port
-//  EEPROM.write(161, mqtt_port & 0xFF); // 2nd byte of port
-//  for (int i = 0; i < 32; i++) EEPROM.write(162 + i, mqtt_username[i]);
-//  for (int i = 0; i < 32; i++) EEPROM.write(194 + i, mqtt_password[i]);
-//  for (int i = 0; i < 64; i++) EEPROM.write(226 + i, mqtt_topic[i]);
-//  EEPROM.commit();
-//}
+
 
 // Function to handle the root page (form to input settings)
 void handleRoot() {
   String html = "<html><body><h1>Configure MQTT and Wi-Fi</h1>";
   html += "<form action='/save' method='POST'>";
   html += "Wi-Fi SSID: <input type='text' name='wifi_ssid' value='" + String(wifi_ssid) + "'><br>";
-  html += "Wi-Fi Password: <input type='password' name='wifi_password' value='" + String(wifi_password) + "'><br>";
+  html += "Wi-Fi Password: <input type='text' name='wifi_password' value='" + String(wifi_password) + "'><br>";
   html += "MQTT Server: <input type='text' name='mqtt_server' value='" + String(mqtt_server) + "'><br>";
   html += "MQTT Port: <input type='text' name='mqtt_port' value='" + String(mqtt_port) + "'><br>";
   html += "MQTT Username: <input type='text' name='mqtt_username' value='" + String(mqtt_username) + "'><br>";
-  html += "MQTT Password: <input type='password' name='mqtt_password' value='" + String(mqtt_password) + "'><br>";
+  html += "MQTT Password: <input type='text' name='mqtt_password' value='" + String(mqtt_password) + "'><br>";
   html += "MQTT Topic: <input type='text' name='mqtt_topic' value='" + String(mqtt_topic) + "'><br>";
+  html += "Minimum Weight: <input type='text' name='weight_threshold' value='" + String(weight_threshold) + "'><br>";
   html += "<input type='submit' value='Save'>";
   html += "</form></body></html>";
   server.send(200, "text/html", html);
@@ -49,6 +26,7 @@ void handleSave() {
   String mqtt_topic_input = server.arg("mqtt_topic");
   String wifi_ssid_input = server.arg("wifi_ssid");
   String wifi_password_input = server.arg("wifi_password");
+  String weight_threshold_input = server.arg("weight_threshold");
 
   // Store the new values
   wifi_ssid_input.toCharArray(wifi_ssid, sizeof(wifi_ssid));
@@ -58,7 +36,8 @@ void handleSave() {
   mqtt_username_input.toCharArray(mqtt_username, sizeof(mqtt_username));
   mqtt_password_input.toCharArray(mqtt_password, sizeof(mqtt_password));
   mqtt_topic_input.toCharArray(mqtt_topic, sizeof(mqtt_topic));
-
+  weight_threshold = weight_threshold_input.toInt();
+  
   // Save to EEPROM
   writeEEPROM();
 
@@ -71,6 +50,7 @@ void handleSave() {
   html += "<p><strong>MQTT Username:</strong> " + String(mqtt_username) + "</p>";
   html += "<p><strong>MQTT Password:</strong> " + String(mqtt_password) + "</p>";
   html += "<p><strong>MQTT Topic:</strong> " + String(mqtt_topic) + "</p>";
+  html += "<p><strong>Minimum Weight:</strong> " + String(weight_threshold) + "</p>";
   html += "</body></html>";
   server.send(200, "text/html", html);
   delay(2000);
@@ -109,6 +89,7 @@ void Webserver_setup() {
     user = mqtt_username;
     pass = mqtt_password;
     topic = clientID = mqtt_topic;
+    thresholdWeight = weight_threshold;
     machine_id = String(topic);
 
     // Print each variable to the Serial Monitor
@@ -139,21 +120,25 @@ void Webserver_setup() {
     Serial.print("MQTT Topic: ");
     Serial.print(mqtt_topic);
     Serial.println(";");
+
+    Serial.print("Minimum Weight: ");
+    Serial.print(thresholdWeight);
+    Serial.println(";");
   }
 }
 
-void display_seven() {
-  IPAddress localIp = WiFi.localIP();
-  for (int i = 0; i < 4; i++) {
-    displaySS(localIp[i]);
-    delay(1000);
-  }
-}
+//void display_seven() {
+//  IPAddress localIp = WiFi.localIP();
+//  for (int i = 0; i < 4; i++) {
+//    displaySS(localIp[i]);
+//    delay(1000);
+//  }
+//}
 
 void Webserver_loop() {
   server.handleClient();
 }
 
-void Webserver_loop1() {
-  display_seven();
-}
+//void Webserver_loop1() {
+//  display_seven();
+//}

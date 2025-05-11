@@ -1,4 +1,23 @@
 
+void send_median_after_tap(String BraceletCode) {
+  reconnect();
+  int fixOutput = weightSamples.getMedian();
+  if (fixOutput > 10000) {
+    fixOutput = 0;
+  }
+  if (fixOutput < 0) {
+    fixOutput = 0;
+  }
+  Serial.println("Sending Median . . . ");
+  send_fix_weight(BraceletCode, machine_id, fixOutput, "0");
+  weightSamples.clear();
+  Serial.println("Sending Median Done ");
+  machineState = "AVL";
+  Name = "";
+//  braceletcode = "";
+  LED_AVL();
+}
+
 void braceletCheck(String targetBracelet) {
   for (int i = 0; i < numberOfBracelets; i++) {
     if (braceletIDs[i] == targetBracelet) {  // Compare strings using strcmp
@@ -7,30 +26,30 @@ void braceletCheck(String targetBracelet) {
       machine_checking(targetBracelet);
       match = false;
       machineState = "AVL";
-      liveFeedStart = false;
       break;
     }
     else {
       match = false;
     }
   }
-
   if (match == false) {
     initMachine = millis();
     machineState = "VALIDATING";
     Serial.println("VALIDATING");
-    validate_bracelet(targetBracelet);
+    //    validate_bracelet(targetBracelet);
+    send_median_after_tap(targetBracelet);
+    LED_validating();
+    delay(3000);
   }
 }
+
 
 void handleCardDetected() {
   // read the NFC tag's info
   success = nfc.readDetectedPassiveTargetID(uid, &uidLength);
   Serial.println(success ? "Read successful" : "Read failed (not a card?)");
 
-  if (success && liveFeedStart == false) {
-    //    liveFeedStart = true;
-    //    LED_NFC();
+  if (success ) {
     // Display some basic information about the card
     Serial.println("Found an ISO14443A card");
     Serial.print("  UID Length: "); Serial.print(uidLength, DEC); Serial.println(" bytes");
@@ -48,11 +67,10 @@ void handleCardDetected() {
       sprintf(hexString + (i * 2), "%02X", uid[i]);  // Convert each byte to 2 hex characters
     }
     nfc.PrintHex(uid, uidLength);
-
-    delay(500);
+    timeLastCardRead = millis();
     BraceletCode = hexString;
     braceletCheck(BraceletCode);
-    timeLastCardRead = millis();
+
   }
 
   // The reader will be enabled again after DELAY_BETWEEN_CARDS ms will pass.
@@ -107,6 +125,4 @@ void PN532_loop() {
     irqPrev = irqCurr;
     digitalWrite(LED_BUILTIN, LOW);
   }
-  //  Serial.println(".");
-  //  delay(1000);
 }

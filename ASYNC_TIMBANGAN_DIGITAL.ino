@@ -1,7 +1,7 @@
 // Menyertakan file header yang diperlukan
 #include "GlobalVariable.h"   // Untuk variabel global
 #include "LED.h"              // Untuk LED
-#include "SevenSegment.h"     // Untuk LED
+//#include "SevenSegment.h"     // Untuk LED
 #include "EEPROM_Func.h"      // Untuk EEPROM
 #include "WebserverPico.h"    // Untuk Webserver
 #include "Motor.h"            // untuk Motor
@@ -10,7 +10,7 @@
 #include "TimerInterval.h"    // Untuk koneksi WiFi
 #include "CardReader.h"       // Untuk pembaca kartu
 #include "Scale.h"            // Untuk pengaturan scale (misalnya load cell atau sensor)
-#include "Waktu.h"            // Untuk pengaturan waktu
+//#include "Waktu.h"            // Untuk pengaturan waktu
 
 void setup() {
   Serial.begin(115200);
@@ -32,11 +32,11 @@ void setup() {
     motor_setup();
     timerInterval_setup();
   }
-  SevenSetup();
+  //  SevenSetup();
 }
 
-void machine_normalizer(){
-  if ((millis()-initMachine)>30000){
+void machine_normalizer() {
+  if ((millis() - initMachine) > 30000) {
     machineState = "AVL";
     initMachine = 0;
   }
@@ -49,23 +49,21 @@ void loop() {
   if (!WEBSERVER_STATE) {
     LED_loop();
     PN532_loop();
-    // time_loop();
     wifi_loop();
     mqtt_loop();
-    checking_connection();
     machine_normalizer();
   }
 }
 
 void loop1() {
   if (!WEBSERVER_STATE) {
-    if (machineState == "SPAMMING" || machineState == "VALIDATING"){
+    if (machineState == "SPAMMING" || machineState == "VALIDATING") {
       mqtt_loop();
     }
     serial_read_loop();
     timerInterval_loop();
   }
-  if (WEBSERVER_STATE) {
-    Webserver_loop1();
-  }
+  //  if (WEBSERVER_STATE) {
+  //    Webserver_loop1();
+  //  }
 }

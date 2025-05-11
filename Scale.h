@@ -20,15 +20,9 @@ void serial_read_loop() {
     if (OutputInt <= 0) {
       OutputInt = 0;
     }
-    //    if (!liveFeedStart && OutputInt >= 100) {
-    //      displaySS(OutputInt);
-    //    }
-    if (!liveFeedStart && OutputInt <= 100) {
-      //      lc.clearDisplay(0);
-      display.clear();
-    }
+    if (OutputInt >= 10000) {
+      OutputInt = 0;
+    } 
 
-    //    Serial.println(String(" Output = ") + OutputF + " Float = " + OutputF.toFloat());
-    //    delay(100);
   }
 }

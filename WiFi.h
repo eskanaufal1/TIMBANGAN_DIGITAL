@@ -1,7 +1,7 @@
 void reconnect_wifi() {
   int cw = 0;
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
+    Serial.print(" .");
     machineState = "NOWIFI";
     LED_noWifi();
     delay(1000);
@@ -19,12 +19,12 @@ void wifi_setup() {
   //  WiFi.config(ip);
   WiFi.begin(ssid, password);
   delay(1000);
+  Serial.println(String("SSID = ") + ssid + " ,password = " + password);
   reconnect_wifi();
   //  WiFi.config(ip);
   Serial.println("");
   Serial.print("Pico W is connected to WiFi network ");
   Serial.println(WiFi.SSID());
-
   Serial.print("Assigned IP Address: ");
   Serial.println(WiFi.localIP());
 }

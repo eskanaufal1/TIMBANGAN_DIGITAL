@@ -8,6 +8,7 @@ void readEEPROM() {
   for (int i = 0; i < 32; i++) mqtt_username[i] = EEPROM.read(162 + i);
   for (int i = 0; i < 32; i++) mqtt_password[i] = EEPROM.read(194 + i);
   for (int i = 0; i < 64; i++) mqtt_topic[i] = EEPROM.read(226 + i);
+  weight_threshold = (EEPROM.read(290) << 8) | EEPROM.read(291);
 }
 
 // Function to save settings to EEPROM
@@ -21,6 +22,8 @@ void writeEEPROM() {
   for (int i = 0; i < 32; i++) EEPROM.write(162 + i, mqtt_username[i]);
   for (int i = 0; i < 32; i++) EEPROM.write(194 + i, mqtt_password[i]);
   for (int i = 0; i < 64; i++) EEPROM.write(226 + i, mqtt_topic[i]);
+  EEPROM.write(290, (weight_threshold >> 8) & 0xFF);  // high byte
+  EEPROM.write(291, weight_threshold & 0xFF);  // low byte
   EEPROM.commit();
 }
 
@@ -38,5 +41,6 @@ void dataForEEPROM() {
   user = mqtt_username;
   pass = mqtt_password;
   topic = clientID = mqtt_topic;
+  thresholdWeight = weight_threshold;
   machine_id = String(topic);
 }

@@ -4,23 +4,17 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
-#include <WiFiUdp.h>
-#include <NTPClient.h>
+//#include <WiFiUdp.h>
+//#include <NTPClient.h>
 #include <Adafruit_NeoPixel.h>
 #include <RunningMedian.h>
 #include "Simpletimer.h"
 //#include "credentials.h"
 //#include "LedControl.h"
-#include <TM1637Display.h>
+//#include <TM1637Display.h>
 
 //Machine Status
 String machineState = "AVL";
-
-// Seven Segments connection pins (Digital Pins)
-//LedControl lc = LedControl(11, 13, 10, 1);
-#define CLK 2
-#define DIO 3
-TM1637Display display(CLK, DIO);
 
 // Interval Callback
 bool liveFeedStart = false;
@@ -52,12 +46,6 @@ unsigned long int initMachine = millis();
 // Find Median
 RunningMedian weightSamples = RunningMedian(20); // jumlah median
 
-// time
-WiFiUDP ntpUDP;
-const char* ntpServer = "pool.ntp.org";
-// const long  gmtOffset_sec = 0;
-// const int   daylightOffset_sec = 3600;
-NTPClient timeClient(ntpUDP, ntpServer, 3600, 60000);
 
 // If using the breakout or shield with I2C, define just the pins connected
 // to the IRQ and reset lines.  Use the values below (2, 3) for the shield!
@@ -85,6 +73,7 @@ bool WEBSERVER_STATE = false;
 // Weight sensor output variable
 float Output;
 int OutputInt;
+int thresholdWeight = 100;
 
 // Wifi
 char* ssid;
@@ -94,13 +83,12 @@ char* password;
 //MQTT
 char* mqtt_public_server;
 char* mqtt_local_server;
-//int port = 52023;
-int port = 52043;
 int local_port = 1883;
 char* clientID;
 char* topic = clientID;
 char* user;
 char* pass;
+unsigned long int lastConnection = 0;
 
 //machine_id
 String machine_id = String(topic);
@@ -133,9 +121,23 @@ int mqtt_port = 1883;
 char mqtt_username[32];
 char mqtt_password[32];
 char mqtt_topic[64];
+int weight_threshold = 100;
 
 // Initialize the web server on port 80
 WebServer server(80);
 
 #include <EEPROM.h>
 #define EEPROM_SIZE 512 // Adjust size as necessary
+
+// Seven Segments connection pins (Digital Pins)
+//LedControl lc = LedControl(11, 13, 10, 1);
+//#define CLK 2
+//#define DIO 3
+//TM1637Display display(CLK, DIO);
+
+// time
+//WiFiUDP ntpUDP;
+//const char* ntpServer = "pool.ntp.org";
+//// const long  gmtOffset_sec = 0;
+//// const int   daylightOffset_sec = 3600;
+//NTPClient timeClient(ntpUDP, ntpServer, 3600, 60000);
