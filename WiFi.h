@@ -31,8 +31,8 @@ void wifi_setup() {
 
 void wifi_loop() {
   reconnect_wifi();
-  if (Serial.readStringUntil('\n') == "IP") {
-    Serial.print("Assigned IP Address: ");
-    Serial.println(WiFi.localIP());
-  }
+  //  if (Serial.readStringUntil('\n') == "IP") {
+  //    Serial.print("Assigned IP Address: ");
+  //    Serial.println(WiFi.localIP());
+  //  }
 }

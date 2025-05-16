@@ -13,12 +13,18 @@
 //#include "LedControl.h"
 //#include <TM1637Display.h>
 
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(9, 8); // RX, TX
+
 //Machine Status
 String machineState = "AVL";
 
 // Interval Callback
 bool liveFeedStart = false;
 Simpletimer timer_live{};
+Simpletimer timer_ping{};
+//Simpletimer timer_status{};
 int counterInterval = 0;
 
 //Bracelet var
@@ -52,7 +58,7 @@ RunningMedian weightSamples = RunningMedian(20); // jumlah median
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)  // Not connected by default on the NFC Shield
 
-const int DELAY_BETWEEN_CARDS = 7500;
+const int DELAY_BETWEEN_CARDS = 5000;
 long timeLastCardRead = 0;
 boolean readerDisabled = false;
 int irqCurr;
@@ -78,7 +84,6 @@ int thresholdWeight = 100;
 // Wifi
 char* ssid;
 char* password;
-
 
 //MQTT
 char* mqtt_public_server;

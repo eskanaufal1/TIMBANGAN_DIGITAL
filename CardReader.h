@@ -12,10 +12,7 @@ void send_median_after_tap(String BraceletCode) {
   send_fix_weight(BraceletCode, machine_id, fixOutput, "0");
   weightSamples.clear();
   Serial.println("Sending Median Done ");
-  machineState = "AVL";
   Name = "";
-//  braceletcode = "";
-  LED_AVL();
 }
 
 void braceletCheck(String targetBracelet) {
@@ -33,13 +30,11 @@ void braceletCheck(String targetBracelet) {
     }
   }
   if (match == false) {
-    initMachine = millis();
     machineState = "VALIDATING";
     Serial.println("VALIDATING");
-    //    validate_bracelet(targetBracelet);
     send_median_after_tap(targetBracelet);
     LED_validating();
-    delay(3000);
+    initMachine = millis();
   }
 }
 

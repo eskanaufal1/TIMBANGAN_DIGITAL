@@ -1,36 +1,32 @@
 
 void reconnect() {
   // Loop until we're reconnected
-  if (!local_client.connected()) {
-    reconnect_wifi();
+  reconnect_wifi();
+  while (!local_client.connected()) {
+    machineState = "NOMQTT";
     Serial.print("Attempting MQTT connection to ");
     Serial.print(mqtt_local_server);
     Serial.print(" . . . .");
-    long now = millis();
     // Attempt to connect
-    if ((now - lastConnection) > 2000) {
-      lastConnection = now;
-      if (local_client.connect(clientID, user, pass)) { //client.connect(clientID, user, pass) &&
-        Serial.println("connected");
-        // Once connected, publish an announcement...
-        local_client.subscribe(topic);
-        Serial.print("Subscribed Server = ");
-        Serial.println(topic);
-        if (machineState != "VALIDATING" && machineState != "SPAMMING") {
-          machineState = "AVL";
-        }
-      } else {
-        Serial.print("failed, rc = ");
-        Serial.print(local_client.state());
-        Serial.println(" try again in 5 seconds");
-        machineState = "NOMQTT";
-        LED_noMQTT();
+
+    if (local_client.connect(clientID, user, pass)) { //client.connect(clientID, user, pass) &&
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      local_client.subscribe(topic);
+      Serial.print("Subscribed Server = ");
+      Serial.println(topic);
+      if (machineState != "VALIDATING" || machineState != "SPAMMING") {
+        machineState = "AVL";
       }
+    } else {
+      Serial.print("failed, rc = ");
+      Serial.print(local_client.state());
+      Serial.println(" try again in 5 seconds");
+      machineState = "NOMQTT";
+      LED_noMQTT();
+      delay(2000);
     }
-  }
-  else {
-    lastConnection = millis();
-    local_client.loop();
+
   }
 }
 
@@ -42,7 +38,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
-  //  if (machineState != "SPAMMING") {
   JsonDocument doc;
   DeserializationError err = deserializeJson(doc, payload, length);
   if (err) {
@@ -57,15 +52,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
         actuator = false;
       }
     }
-    //      if (doc["action"] == "check-bracelet-response" && doc["status"] == true && (lastVal - initVal) < 5000 && machineState == "VALIDATING") {
-    //        validate = true;
-    //        Name = String(doc["userdisplayname"]);
-    //        machineState = "VALIDATED";
-    //        LED_validated();
-    //        Serial.println(String("UID Validated = ") + uid[0] + uid[1] + uid[2] + uid[3]);
-    //        Serial.println(String("Name = ") + Name);
-    //        // local_client.unsubscribe(topic);
-    //      }
     if (doc["action"] == "check-bracelet-response" && doc["status"] == false) {
       machineState = "AVL";
     }
@@ -73,51 +59,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
   //  }
 }
 
-//void checking_connection() {
-//  if (check_state == true) {
-//    //      reconnect();
-//    Serial.println("Checking status machine");
-//    JsonDocument doc;
-//    doc["action"] = "check-connection-response";
-//    doc["status"] = "true";
-//    doc["date_time"] = timeClient.getFormattedDate();
-//    char buffer[128];
-//
-//    size_t n = serializeJson(doc, buffer);
-//    Serial.println(buffer);
-//    uint8_t uintdata[sizeof(buffer)];
-//    memcpy(uintdata, buffer, sizeof(buffer));
-//    // Send JSON to MQTT topic
-//    if (local_client.publish(topic, uintdata, n, false))  {
-//      Serial.println("JSON response sent to MQTT");
-//      check_state = false;
-//    } else {
-//      Serial.println("Failed to send JSON status to MQTT");
-//    }
-//  }
-//}
-
-//void validate_bracelet(String braceletCode) {
-//  Serial.println("Validate Bracelet");
-//  JsonDocument doc;
-//  doc["action"] = "check-bracelet";
-//  doc["braceletcode"] = braceletCode;
-//  doc["scalecode"] = topic;
-//  //  doc["date_time"] = timeClient.getFormattedDate();
-//  char buffer[128];
-//
-//  size_t n = serializeJson(doc, buffer);
-//  Serial.println(buffer);
-//  uint8_t uintdata[sizeof(buffer)];
-//  memcpy(uintdata, buffer, sizeof(buffer));
-//  // Send JSON to MQTT topic
-//  if (local_client.publish(topic, uintdata, n, false))  {
-//    Serial.println("JSON response sent to MQTT");
-//    initVal = millis();
-//  } else {
-//    Serial.println("Failed to send JSON status to MQTT");
-//  }
-//}
 
 void machine_checking(String braceletCode) {
   Serial.println("Checking status machine");
@@ -139,7 +80,6 @@ void machine_checking(String braceletCode) {
   } else {
     Serial.println("Failed to send JSON status to MQTT");
   }
-
 }
 
 void send_fix_weight(String braceletcode, String machine_id, float weight, String id) {
@@ -150,6 +90,23 @@ void send_fix_weight(String braceletcode, String machine_id, float weight, Strin
   doc["scalecode"] = machine_id;
   doc["weightnumber"] = weight;
   doc["uidreq"] = id;
+  reconnect();
+  char buffer[256];
+  size_t n = serializeJson(doc, buffer);
+  Serial.println(buffer);
+  uint8_t uintdata[sizeof(buffer)];
+  memcpy(uintdata, buffer, sizeof(buffer));
+  // Send JSON to MQTT topic
+  if (local_client.publish(topic, uintdata, n, false))  {
+    Serial.println("JSON sent to MQTT");
+  } else {
+    Serial.println("Failed to send JSON to MQTT");
+  }
+}
+
+void send_ping() {
+  JsonDocument doc;
+  doc["action"] = "PING";
   reconnect();
   char buffer[256];
   size_t n = serializeJson(doc, buffer);
@@ -198,6 +155,5 @@ void mqtt_loop() {
   if (!local_client.connected()) { //!client.connected() ||
     reconnect();
   }
-  //  client.loop();
   local_client.loop();
 }

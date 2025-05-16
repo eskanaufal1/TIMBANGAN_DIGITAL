@@ -1,10 +1,11 @@
 void serial_read_setup() {
-  Serial2.begin(9600);  //pin 8 TX, pin 9 RX
+  mySerial.begin(9600);  //pin 8 TX, pin 9 RX
 }
 
 void serial_read_loop() {
-  if (Serial2.available() > 0) {
-    String input = Serial2.readStringUntil('\n');
+//  mySerial.begin(9600);
+  if (mySerial.available() > 0) {
+    String input = mySerial.readStringUntil('\n');
     int startIndex = 0;
     while (startIndex < input.length() && input[startIndex] == '=') {
       startIndex++;

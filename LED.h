@@ -57,7 +57,7 @@ void LED_spamming() {
 }
 
 void LED_loop() {
-  if (machineState == "AVL") {
+  if (machineState == "AVL" || machineState == "SPAMMING") {
     LED_AVL();
   }
   if (machineState == "NOWIFI") {
